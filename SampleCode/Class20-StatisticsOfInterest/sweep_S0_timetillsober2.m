@@ -1,5 +1,6 @@
-% Full 2D sweep of initial concentration and threshold BAC level; contour
-% plot of the time until sober.
+% Sweep the initial concentration of alcohol (S0) and the threshold BAC
+% level, then plot S0 (converted to number of drinks) versus the time until
+% the BAC drops below the threshold.
 
 % Fixed parameters.
 d = 0;           % drinking rate (g / l  hour)
@@ -9,40 +10,47 @@ k_e = 0.8;       % rate constant for elimination of alcohol from the
                  %     lean body mass (1 / hour)
                  
 % Set up our sweep variables.
-S0s = 0.5:0.1:3;   % initial concentration in the stomach (g / l)
+S0s = 0.5:0.05:3;   % initial concentration in the stomach (g / l)
                     % (0.5 =~ 1 drink)
-thresholds = 0.2:0.025:0.8;   % threshold BAC (g / l)
+thresholds = 0.2:0.15:0.8;   % threshold BAC (g / l)
 
-% Convert our input variables to more intuitive units
-drinks = S0s / 0.5;   % initial concentration (g / l) to number of drinks
-threshPcts = thresholds / 10;  % lean body mass conc. (g / l) to BAC %
+% Convert our input variable to more intuitive units
+drinks = S0s / 0.5;  % initial concentration (g / l) to number of drinks
 
-% Set up our result matrix.
-numS0s = length(S0s);
-numThresholds = length(thresholds);
-durations = zeros(numThresholds, numS0s);
+% Set up our result variables.
+N = length(S0s);
+durations = zeros(1, N);
 
-% Now we do the sweeps and store the result in a matrix ...
-for i = 1:numThresholds
-    for j = 1:numS0s
-        durations(i, j) = find_time_until_sober(S0s(j), d, k_a, k_e, ...
-            thresholds(i));
+% Now we do the sweeps, and plot at the same time ...
+hold on
+for threshold = thresholds
+    for j = 1:N
+        durations(j) = find_time_until_sober(S0s(j), d, k_a, k_e, ...
+            threshold);
     end
+    plot(drinks, durations, 'DisplayName', num2str(threshold / 10));
+        % divide by 10 to convert lean body mass conc. (g / l) to BAC %
 end
 
-% Here we create a contour plot with a color bar ...
-contourf(drinks, threshPcts, durations);
-cb = colorbar;
-title(cb, 'Hours');
-
 % Finally, let's create some labels (and fine-tune their positions) ...
-title('How Long Does It Take To Get Sober?');
-xlabel('Number of drinks');
-ylabel('Definition of sober (BAC %)');
+t = title('How Long Does It Take To Get Sober?');
+t.Position = [3 5.1 0];
+xl = xlabel('Number of drinks');
+xl.Position = [3 -0.3 0];
+yl = ylabel('Hours until sober');
+yl.Position = [-0.3 2.5 0];
 
 % Let's tune up the axes to put zero on both of them ...
 ax = gca;  % try "help gca" for an explanation
-ax.XLim = [1 6];
-ax.XTick = 1:6;
-ax.YLim = [0.02 0.08];
-ax.YTick = 0.02:0.02:0.08;
+ax.XLim = [0 6];
+ax.XTick = 0:6;
+ax.YLim = [0 5];
+ax.YTick = 0:5;
+
+% And make a nice legend, too.
+l = legend('show');
+title(l, 'Definition of sober (BAC %)')
+l.Orientation = 'vertical';
+%l.Position = [0.28 0.8 0 0];
+l.Position = [0.78 0.22 0 0];
+legend('boxoff');

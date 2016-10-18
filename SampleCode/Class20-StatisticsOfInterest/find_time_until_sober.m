@@ -21,10 +21,11 @@ function res = find_time_until_sober(S0, d, k_a, k_e, threshold)
     % Simulating the model is still a one-liner.
     [~, ~, te] = ode45(dYdt, timeSpan, Y0, options);
 
-    % If two events occurred, return the time difference between them.
-    % Otherwise return NaN to indicate that we don't have a duration.
-    if (length(te) == 2)
-        res = te(2) - te(1);
+    % If an event occurred, return the time of the event. Otherwise return
+    % NaN to indicate either that the subject didn't get sober within the
+    % time window, or didn't get drunk enough in the first place.
+    if (length(te) == 1)
+        res = te;
     else
         res = NaN;
     end
@@ -34,16 +35,15 @@ function res = find_time_until_sober(S0, d, k_a, k_e, threshold)
     % (See Cat Book 11.1 and the MATLAB documentation for odeset.)
     function [value, isterminal, direction] = events(~, Y)
         
-        % This time the value we are interested in is the difference
-        % between the current BAC (stock 2) and the given threshold.
-        diff = Y(2) - threshold;
-        value = [diff diff]; % we want two events so we need this twice
+        % The value we are interested in is the difference between the
+        % current BAC (stock 2) and the given threshold.
+        value = Y(2) - threshold;
 
-        % The first event we want is when we cross the threshold going up.
-        % The second event is when we cross it going down.
-        direction = [1 -1];
+        % We are only interested in events in which we cross the threshold
+        % on a downward slope (the negative direction).
+        direction = -1;
         
-        % Stop the integration after the second event.
-        isterminal = [0 1];
+        % Stop the integration after the event.
+        isterminal = 1;
     end
 end

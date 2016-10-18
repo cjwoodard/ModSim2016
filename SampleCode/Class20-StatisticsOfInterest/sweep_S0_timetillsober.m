@@ -1,6 +1,5 @@
-% Sweep the initial concentration of alcohol (S0) and the threshold BAC
-% level, then plot S0 (converted to number of drinks) versus the time until
-% the BAC drops below the threshold.
+% Plot the time until BAC drops below a threshold as a function of the
+% number of initial drinks.
 
 % Fixed parameters.
 d = 0;           % drinking rate (g / l  hour)
@@ -12,7 +11,7 @@ k_e = 0.8;       % rate constant for elimination of alcohol from the
 % Set up our sweep variables.
 S0s = 0.5:0.05:3;   % initial concentration in the stomach (g / l)
                     % (0.5 =~ 1 drink)
-thresholds = 0.2:0.15:0.8;   % threshold BAC (g / l)
+threshold = 0.5;    % threshold BAC (g / l)
 
 % Convert our input variable to more intuitive units
 drinks = S0s / 0.5;  % initial concentration (g / l) to number of drinks
@@ -21,16 +20,13 @@ drinks = S0s / 0.5;  % initial concentration (g / l) to number of drinks
 N = length(S0s);
 durations = zeros(1, N);
 
-% Now we do the sweeps, and plot at the same time ...
-hold on
-for threshold = thresholds
-    for j = 1:N
-        durations(j) = find_time_until_sober(S0s(j), d, k_a, k_e, ...
-            threshold);
-    end
-    plot(drinks, durations, 'DisplayName', num2str(threshold / 10));
-        % divide by 10 to convert lean body mass conc. (g / l) to BAC %
+% Now we do the sweep, then plot ...
+for j = 1:N
+    durations(j) = find_time_until_sober(S0s(j), d, k_a, k_e, ...
+        threshold);
 end
+plot(drinks, durations, 'DisplayName', num2str(threshold / 10));
+    % divide by 10 to convert lean body mass conc. (g / l) to BAC %
 
 % Finally, let's create some labels (and fine-tune their positions) ...
 t = title('How Long Does It Take To Get Sober?');
