@@ -13,7 +13,7 @@ S0s = 0.5:0.1:3;   % initial concentration in the stomach (g / l)
                     % (0.5 =~ 1 drink)
 thresholds = 0.2:0.025:0.8;   % threshold BAC (g / l)
 
-% Convert our input variables to more intuitive units
+% Convert our input variables to more intuitive units.
 drinks = S0s / 0.5;   % initial concentration (g / l) to number of drinks
 threshPcts = thresholds / 10;  % lean body mass conc. (g / l) to BAC %
 
@@ -32,15 +32,24 @@ end
 
 % Here we create a contour plot with a color bar ...
 contourf(drinks, threshPcts, durations);
-cb = colorbar;
-title(cb, 'Hours');
 
-% Finally, let's create some labels (and fine-tune their positions) ...
+% NOTE FROM CLASS: Mark suggested these variations, which you can try
+% by commenting out the line above and uncommenting the lines below.
+
+%pcolor(drinks, threshPcts, durations); % compute the color in every cell
+%shading interp % interpolate smoothly between cells (or leave commented out)
+
+% Create the main title and axis labels (and fine-tune their positions).
 title('How Long Does It Take To Get Sober?');
 xlabel('Number of drinks');
 ylabel('Definition of sober (BAC %)');
 
-% Let's tune up the axes to put zero on both of them ...
+% Create a color bar with a title.
+cb = colorbar;
+title(cb, 'Hours');
+
+% Now let's tune up the axes to put zero on both of them, and ticks
+% where we want them ...
 ax = gca;  % try "help gca" for an explanation
 ax.XLim = [1 6];
 ax.XTick = 1:6;
